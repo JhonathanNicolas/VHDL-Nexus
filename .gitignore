@@ -1,0 +1,25 @@
+# .gitignore for VSCode
+
+# Ignore settings and configurations
+.vscode/
+
+# Exclude settings containing user-specific data
+*.code-workspace
+
+# User-specific configurations might also include:
+*.vscode/settings.json
+
+# Exclude extensions added to the workspace
+*.vscode/extensions.json
+
+# Exclude cached files that are generated from tasks
+*.vscode/tasks.json
+
+# Exclude launch configurations
+*.vscode/launch.json
+
+# Exclude browsing data 
+*.browse.vc.db
+
+# Uncomment the line below if you want to ignore the keybindings file
+# *.vscode/keybindings.json
