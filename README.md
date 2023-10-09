@@ -3,7 +3,7 @@
 ![OpenSource](https://img.shields.io/badge/-OpenSource-orange)
 # VHDL Nexus
 
-Welcome to the VHDL Challenges Repository! This repository provides a collection of exercises focused on hardware description and design using the VHDL language. Whether you're a beginner or an experienced FPGA engineer, you can find a challenge suited to your skill level.
+Welcome to the VHDL Nexus Repository! This repository provides a collection of exercises focused on hardware description and design using the VHDL language. Whether you're a beginner or an experienced FPGA engineer, you can find a challenge suited to your skill level.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ Welcome to the VHDL Challenges Repository! This repository provides a collection
 ## Getting Started
 
 1. **Prerequisites:** Ensure you have an appropriate VHDL simulator installed (e.g., ModelSim, GHDL).
-2. **Clone the Repository:** `git clone https://github.com/YourUsername/vhdl-challenges.git`
+2. **Clone the Repository:** `git clone https://github.com/JhonathanNicolas/VHDL-Nexus.git`
 3. Navigate to the specific challenge folder, read the provided instructions, and start coding!
 4. Test your solution using the provided testbench or create your own.
 
