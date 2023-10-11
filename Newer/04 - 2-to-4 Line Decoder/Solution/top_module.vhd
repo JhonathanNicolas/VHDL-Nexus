@@ -31,7 +31,7 @@ architecture Behavioral of top_module is
     end component;
 
 signal s_I : std_logic_vector(1 downto 0) := (others => '0');
-signal s_O : std_logic_vector(1 downto 0) := (others => '0');
+signal s_O : std_logic_vector(3 downto 0) := (others => '0');
 
 begin
 
