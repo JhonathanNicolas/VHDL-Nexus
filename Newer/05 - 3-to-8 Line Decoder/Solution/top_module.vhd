@@ -18,25 +18,28 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity decoder is
+entity top_module is
     Port ( I : in STD_LOGIC_VECTOR (2 downto 0);
            O : out STD_LOGIC_VECTOR (7 downto 0));
-end decoder;
+end top_module;
 
-architecture Behavioral of decoder is
+architecture Behavioral of top_module is
+
+    component decoder is
+    Port(I : in STD_LOGIC_VECTOR (2 downto 0);
+         O : out STD_LOGIC_VECTOR (7 downto 0));
+    end component;
+
+signal s_I : std_logic_vector(2 downto 0) := (others => '0');
+signal s_O : std_logic_vector(7 downto 0) := (others => '0');
 
 begin
 
-    -- Let's try to practice another VHDL trick
-    with I select O <=
-    "00000001" when "000",
-    "00000010" when "001",
-    "00000100" when "010",
-    "00001000" when "011",
-    "00010000" when "100",
-    "00100000" when "101",
-    "01000000" when "110",
-    "10000000" when "111",
-    "XXXXXXXX" when others;
-    
+decoder_3to8: decoder Port map(
+    I => s_I,
+    O => s_O);
+
+s_I <= I;
+O <= s_O;
+
 end Behavioral;
