@@ -22,8 +22,8 @@ def generate_test_vectors(seed_file="seeds.txt"):
 
             input_select.append(bin(selector)[2:].zfill(2))
             input_data.append(bin(data)[2:].zfill(4))
-            selected_bit = (data >> (3 - selector)) & 1  # Extract the selected bit
-            expected_results.append(bin(selected_bit)[2:].zfill(4))  # The selected bit is made 4 bits long for consistency.
+            selected_bit = (data >> selector) & 1  # Extract the selected bit based on the bit order
+            expected_results.append(str(selected_bit))  # Storing the single digit binary value
 
     # Write to files
     with open("inputs_select.txt", "w") as f:

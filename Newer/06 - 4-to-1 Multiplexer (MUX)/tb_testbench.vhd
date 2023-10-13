@@ -56,7 +56,7 @@ dut: top_module port map (
 
 read_select_input: process
     variable inline : line; 
-    variable vdata: STD_LOGIC_VECTOR(3 downto 0);
+    variable vdata: STD_LOGIC_VECTOR(1 downto 0);
 begin
     s_S <= (others=> '0');
     wait for 10 ns;
@@ -81,7 +81,6 @@ begin
         s_D <= vdata;
         wait for 10 ns;
      end loop;
-     VALID <= false;
 end process;
 
 read_result_expected_output: process
@@ -96,7 +95,6 @@ begin
         s_Y_Expected <= vdata;
         wait for 10 ns;
      end loop;
-     VALID <= false;
 end process;
 
 CORRECT_RESULT <= (s_y = s_Y_Expected);
