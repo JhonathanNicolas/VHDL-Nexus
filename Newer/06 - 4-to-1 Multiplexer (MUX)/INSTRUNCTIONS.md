@@ -17,7 +17,7 @@ Design a circuit that selects one of four input signals based on a 2-bit selecto
 
 1. **VHDL File**: Construct a dedicated VHDL file for the multiplexer (e.g., `4_to_1_mux.vhdl`).
 
-2. **Top Module**: Design a top module (e.g., `top_4_to_1_mux.vhdl`) where you instantiate the MUX component and wire the inputs and outputs.
+2. **Top Module**: Design a top module (e.g., `top_module.vhdl`) where you instantiate the MUX component and wire the inputs and outputs.
 
 3. **Component Breakdown**: Consider how you might decompose this MUX into simpler components, such as 2-to-1 MUXs. Breaking down complex entities into simpler parts can be an effective approach to tackle larger designs.
 
