@@ -1,38 +1,38 @@
 import numpy as np
+import scipy.signal as signal
 import matplotlib.pyplot as plt
-from scipy.signal import firwin, freqz
 
-def generate_fir_filter(taps=64, cutoff=1000, fs=44100):
-    h = firwin(taps, cutoff, window="hamming", fs=fs)
-    return h
+def generate_fir_filter(num_taps=16, cutoff=1000, fs=48000):
+    # Design the FIR filter using the window method
+    taps = signal.firwin(num_taps, cutoff, fs=fs)
+    
+    # Normalize taps to have maximum value close to 32767
+    normalized_taps = np.round(taps * (2**15 - 1))
+    
+    return normalized_taps
 
-def quantize_to_16bits(data, scale_factor=32767):
-    data_normalized = data / np.max(np.abs(data))
-    quantized_data = np.round(data_normalized * scale_factor).astype(np.int16)
-    return quantized_data
+def save_taps_to_file(taps, filename):
+    with open(filename, 'w') as f:
+        for tap in taps:
+            # Convert the tap to a 16-bit hexadecimal number
+            hex_val = format(int(tap) & 0xFFFF, '04X')
+            f.write(hex_val + '\n')
 
-def plot_response(fs, h, title="Frequency Response"):
-    w, H = freqz(h, worN=8000, fs=fs)
-    plt.figure(figsize=(12, 6))
-    plt.title(title)
-    plt.plot(w, 20 * np.log10(np.abs(H)), 'b')
-    plt.ylabel("Amplitude [dB]", color='b')
-    plt.xlabel("Frequency [Hz]")
+if __name__ == "__main__":
+    num_taps = 64
+    fs = 48000  # Sampling frequency
+    cutoff = 1000  # Desired cutoff frequency
+
+    taps = generate_fir_filter(num_taps, cutoff, fs)
+    
+    # Plot the frequency response of the filter
+    w, H = signal.freqz(taps, worN=8000)
+    plt.plot(0.5 * fs * w / np.pi, np.abs(H), 'b')
+    plt.title("Frequency Response of the FIR Filter")
+    plt.xlabel('Frequency [Hz]')
+    plt.ylabel('Gain')
     plt.grid()
     plt.show()
 
-if __name__ == "__main__":
-    fs = 44100
-    cutoff = 1000
-    taps = 64
-    
-    # Generate the FIR filter coefficients
-    h = generate_fir_filter(taps, cutoff, fs)
-    plot_response(fs, h, "Original Filter Frequency Response")
-    
-    # Quantize the coefficients to 16 bits
-    h_quantized = quantize_to_16bits(h)
-    plot_response(fs, h_quantized, "Quantized Filter Frequency Response")
-    
-    # Optionally: Save the quantized coefficients to a file
-    np.savetxt("quantized_fir_coefficients.txt", h_quantized, fmt="%d")
+    # Save the taps to a file in hexadecimal format
+    save_taps_to_file(taps, "rom_init.data")
