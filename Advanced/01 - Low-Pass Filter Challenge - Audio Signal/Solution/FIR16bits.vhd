@@ -53,7 +53,7 @@ constant FIR_WORD_SIZE : NATURAL := 16;
 constant FIR_STEP_SIZE : NATURAL := 64;
 
 type coeffs_type is array (0 to FIR_STEP_SIZE/2 -1) of INTEGER;
-type fir_signal is array (0 to FIR_STEP_SIZE) of STD_LOGIC_VECTOR(FIR_WORD_SIZE-1 downto 0);
+type fir_signal is array (0 to FIR_STEP_SIZE-1) of STD_LOGIC_VECTOR(FIR_WORD_SIZE-1 downto 0);
 
 constant COEFFICIENTS: coeffs_type := (
     2*16#FFE9#, 2*16#FFEA#, 2*16#FFEA#, 2*16#FFEA#, 2*16#FFEB#, 2*16#FFEE#, 2*16#FFF3#, 2*16#FFFA#,
@@ -65,7 +65,7 @@ constant COEFFICIENTS: coeffs_type := (
 signal fir_signals_in : fir_signal;
 signal fir_signals_out : fir_signal;
 signal sum_signals : STD_LOGIC_VECTOR (FIR_WORD_SIZE-1 downto 0);
-
+signal overflow : STD_LOGIC := '0';
 component FIR16bits_1step is
     Generic (
             DATA_WIDTH: INTEGER := FIR_WORD_SIZE;
@@ -78,52 +78,57 @@ end component;
 
 
 begin
-
     generate_FIRs: for i in 0 to (FIR_STEP_SIZE/2) - 1 generate
-    uFIR: FIR16bits_1step
-        generic map(
-            DATA_WIDTH => FIR_WORD_SIZE,
-            COEFFICIENT => COEFFICIENTS(i) )
-        port map (
-            clk => clk,
-            rst => rst,
-            data_in => fir_signals_in(i),
-            data_out => fir_signals_out(i)
-        );
-end generate;
+        uFIR: FIR16bits_1step
+            generic map(
+                DATA_WIDTH => FIR_WORD_SIZE,
+                COEFFICIENT => COEFFICIENTS(i) )
+            port map (
+                clk => clk,
+                rst => rst,
+                data_in => fir_signals_in(i),
+                data_out => fir_signals_out(i)
+            );
+    end generate;
 
--- Shift process
-shift_process: process(clk, rst)
-begin
-    if (rst = '1') then
-        for idx in 0 to FIR_STEP_SIZE-1 loop
-            fir_signals_in(idx) <= (others => '0');
-        end loop;
-    elsif rising_edge(clk) then
-        fir_signals_in(0) <= data_in;
-        for idx in 0 to (FIR_STEP_SIZE/2) - 2 loop
-            fir_signals_in(idx+1) <= fir_signals_out(idx);
-            fir_signals_in(FIR_STEP_SIZE - idx - 1) <= fir_signals_out(FIR_STEP_SIZE - idx - 2);
-        end loop;
-    end if;
-end process;
+    -- Shift process
+    shift_process: process(clk, rst)
+    begin
+        if (rst = '1') then
+            for idx in 0 to FIR_STEP_SIZE-1 loop
+                fir_signals_in(idx) <= (others => '0');
+            end loop;
+        elsif rising_edge(clk) then
+            fir_signals_in(0) <= data_in;
+            for idx in 0 to FIR_STEP_SIZE/2 - 2 loop
+                fir_signals_in(idx+1) <= fir_signals_out(idx);
+                fir_signals_in(FIR_STEP_SIZE - idx - 1) <= fir_signals_out(idx);
+            end loop;
+        end if;
+    end process;
 
--- Summation process
-summation_process: process(clk, rst)
-    variable sum: integer := 0;
-begin
-    if rst = '1' then
-        sum_signals <= (others => '0');
-    elsif rising_edge(clk) then
-        sum := 0;
-        for idx in 0 to FIR_STEP_SIZE - 1 loop
-            sum := sum + to_integer(signed(fir_signals_out(idx)));
-        end loop;
-        sum_signals <= std_logic_vector(to_signed(sum, FIR_WORD_SIZE));
-    end if;
-end process;
+    -- Summation process
+    summation_process: process(clk, rst)
+        variable sum: integer := 0;
+        variable temp: integer := 0;
+    begin
+        if rst = '1' then
+            sum_signals <= (others => '0');
+            overflow <= '0';
+        elsif rising_edge(clk) then
+            sum := 0;
+            for idx in 0 to FIR_STEP_SIZE-1 loop
+                temp := sum + to_integer(signed(fir_signals_out(idx)));
+                if temp > 32767 or temp < -32768 then
+                    overflow <= '1';
+                end if;
+                sum := temp;
+            end loop;
+            sum_signals <= std_logic_vector(to_signed(sum, FIR_WORD_SIZE));
+        end if;
+    end process;
 
-
-data_out <= sum_signals;
+    data_out <= sum_signals when overflow = '0' else (others => '0');  -- Output is zeroed on overflow.
 
 end Behavioral;
+

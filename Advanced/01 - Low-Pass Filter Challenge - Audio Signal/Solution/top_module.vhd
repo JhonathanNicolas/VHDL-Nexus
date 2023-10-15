@@ -78,7 +78,7 @@ i_FIR: FIR16bit port map(
        rst => rst,    
        data_in => s_noisy_audio,
        data_out => s_filtered_audio);
-       
+
 audio_out <= s_filtered_audio;
 
 end Behavioral;
